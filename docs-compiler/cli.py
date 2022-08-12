@@ -95,6 +95,9 @@ def compiler(bb, tag):
                 continue
             repo.checkout(pkgs[repo.name]["tag"])
 
+        if repo.name == "bigbang":
+            config["nav"][4]["📋 Release Notes"] += "/" + tag
+
         shutil.copytree(
             src_root,
             dst_root,
@@ -105,24 +108,20 @@ def compiler(bb, tag):
         write_awesome_pages(config, dst_root / ".pages")
 
     shutil.copy2(
-        "submodules/bigbang/Packages.md",
+        "submodules/bigbang/docs/packages.md",
         "docs/packages/index.md",
     )
 
-    with open(Path().cwd().joinpath("docs/.pages"), "r") as f:
-        dot_pages = yaml.load(f)
-
-    # from base/.pages
-    dot_pages["nav"][3]["📋 Release Notes"] += "/" + tag
-
-    with open(Path().cwd().joinpath("docs/.pages"), "w") as f:
-        yaml.dump(dot_pages, f)
-
     copy_helm_readme(
-        "submodules/bigbang/README.md",
-        "docs/bigbang/README.md",
-        "docs/bigbang/values.md",
+        "submodules/bigbang/docs/understanding-bigbang/configuration/base-config.md",
+        "docs/README.md",
+        "docs/values.md",
         "Big Bang",
+    )
+
+    shutil.copy2(
+        "submodules/bigbang/README.md",
+        "docs/README.md"
     )
 
     pkg_readmes = glob.iglob("docs/packages/*/README.md")
@@ -148,16 +147,6 @@ def compiler(bb, tag):
                 ),
             },
         )
-
-    # charter_docs = glob.iglob("docs/bigbang/charter/**/*.md", recursive=True)
-    # for md in charter_docs:
-    #     # source_md = md.replace("docs/bigbang/", "submodules/bigbang/")
-    #     add_frontmatter(
-    #         md,
-    #         {
-    #             "tags": ["charter"],
-    #         },
-    #     )
 
     pkg_docs = glob.iglob("docs/packages/**/*.md", recursive=True)
     for md in pkg_docs:
@@ -244,6 +233,9 @@ def compile(last_x_tags, pre_release, clean, outdir, no_build, dev):
     tags_to_compile = tags[:last_x_tags]
     tags_to_compile.reverse()
     setup()
+
+    ### TEMP MANUAL OVERRIDE TO USE `1272-draft-follow-on-follow-on-docs-design-update` branch
+    tags_to_compile = ["1272-draft-follow-on-follow-on-docs-design-update"]
 
     if pre_release:
         latest_release_tag = tags_to_compile[0]
