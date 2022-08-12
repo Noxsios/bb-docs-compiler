@@ -119,9 +119,13 @@ def compiler(bb, tag):
         "Big Bang",
     )
 
-    shutil.copy2(
-        "submodules/bigbang/README.md",
-        "docs/README.md"
+    shutil.copy2("submodules/bigbang/README.md", "docs/README.md")
+
+    add_frontmatter(
+        "docs/README.md",
+        {
+            "revision_date": bb.get_revision_date("README.md"),
+        },
     )
 
     pkg_readmes = glob.iglob("docs/packages/*/README.md")
@@ -134,16 +138,14 @@ def compiler(bb, tag):
             pkg_name,
         )
 
-    bb_docs = glob.iglob("docs/bigbang/**/*.md", recursive=True)
+    bb_docs = glob.iglob("docs/docs/**/*.md", recursive=True)
     for md in bb_docs:
-        if md == "docs/bigbang/values.md":
-            continue
         add_frontmatter(
             md,
             {
                 "tags": ["bigbang"],
                 "revision_date": bb.get_revision_date(
-                    md.replace("docs/bigbang/", "./")
+                    md.replace("docs/docs/", "./docs/")
                 ),
             },
         )
